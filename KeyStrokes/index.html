@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <p>Keystrokes measurement</p>
+
+    <p id="p1">Start</p>
+    <p id="p2">End</p>
+
+    <input type="text" onkeypress="onKeypress()" onkeydown="onKeyDown()" onkeyup="onKeyUp()">
+
+    <script>
+        /** Measuring time */
+        let time = new Date();
+        let h = null;
+        let m = null;
+        let s = null;
+        let ms = null;
+        let block_key_down_until_up = false;
+
+        function p1() {
+            return document.getElementById("p1");
+        }
+
+        function p2() {
+            return document.getElementById("p2");
+        }
+
+        function onKeypress() {
+        }
+
+        function onKeyDown() {
+            if (!block_key_down_until_up) {
+                block_key_down_until_up = true
+                var d = new Date();
+                h = d.getHours()
+                m = d.getMinutes()
+                s = d.getSeconds()
+                ms = d.getMilliseconds()
+                p1().innerHTML = "Started: "+h + ":" + m + ":" + s + ":" + ms;
+            }
+        }
+
+        function onKeyUp() {
+            var d = new Date();
+            h = d.getHours() - h
+            m = d.getMinutes() - m
+            s = d.getSeconds() - s
+            ms = d.getMilliseconds() - ms
+            p2().innerHTML = "Duration: "+h + ":" + m + ":" + s + ":" + ms;
+            block_key_down_until_up = false
+        }
+
+        /** Displaying text to follow up by the user - experiment */
+
+        /** Create Tree of particular user's ID */
+        /*** Atomic calculations: sub-trees and end-nodes */
+
+        /** Based on previous ID Trees compare if current writter is any of them */
+        /*** Traverse every Tree until it meets someone similiar */
+
+    </script>
+
+</body>
+
+</html>
