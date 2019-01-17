@@ -1,9 +1,134 @@
 <!DOCTYPE html>
-
 <html>
 
 <body>
-    <p> OK </p>
+
+    <p>Keystrokes measurement</p>
+    <p>USERNAME</p>
+    <input id="username" type="password">
+
+    <p> TYPE BOX</p>
+    <input id="e1" type="text" onkeypress="onKeyPress()" onkeydown="onKeyDown()" onkeyup="onKeyUp()">
+
+    <p id="similiarTo"> Similiar to...</p>
+
+    <p id="p1">Start</p>
+    <p id="p2">End</p>
+
+
+    <script src="https://www.gstatic.com/firebasejs/5.7.2/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyDZsbtHF_YU8EyhyWJGM5eB28ABORYKKpc",
+            authDomain: "keystrokes-526dd.firebaseapp.com",
+            databaseURL: "https://keystrokes-526dd.firebaseio.com",
+            projectId: "keystrokes-526dd",
+            storageBucket: "",
+            messagingSenderId: "690094429726"
+        };
+        firebase.initializeApp(config);
+
+        function writeUserData(userId, nGraph, time) {
+            writeUsername(userId);
+            writeGraphData(userId, nGraph, time);
+            // return;
+            firebase.database().ref('/users/' + userId + "/" + nGraph + "/" + time + "/").once('value').then(function (
+                snapshot) {
+                let timings = {}
+                let counter = parseInt(snapshot.val());
+                counter = counter > 0 ? counter + 1 : 1;
+                timings[time] = counter;
+                firebase.database().ref('users/' + userId + "/" + nGraph + "/").update(timings);
+            });
+        }
+
+        function writeGraphData(userId, nGraph, time) {
+            // return;
+            let pushRef = firebase.database().ref('/graphs/'+nGraph+'/'+time+'/').push();
+            pushRef.set({
+                [userId]: true
+            });
+        }
+
+        function writeUsername(userId) {
+            firebase.database().ref("usernames/").update({
+                [userId]: true
+            })
+        }
+
+        /** Measuring time */
+        let time = new Date();
+        let h = null;
+        let m = null;
+        let s = null;
+        let ms = null;
+        let block_key_down_until_up = false;
+
+        /** Session Unique */
+        let sessionDependentSalt = "@" + (Math.random() * 10000).toFixed(0).toString() + "_" + new Date().toISOString()
+            .split(".").join("");
+
+        function p1() {
+            return document.getElementById("p1");
+        }
+
+        function p2() {
+            return document.getElementById("p2");
+        }
+
+        function e1() {
+            return document.getElementById("e1");
+        }
+
+        function similiarTo() {
+            return document.getElementById("similiarTo");
+        }
+
+        function username() {
+            return document.getElementById("username").value.toString() + sessionDependentSalt.toString();
+        }
+
+        function onKeyPress() {}
+
+        function onKeyDown() {
+            if (!block_key_down_until_up) {
+                block_key_down_until_up = true
+                var d = new Date();
+                h = d.getHours()
+                m = d.getMinutes()
+                s = d.getSeconds()
+                ms = d.getMilliseconds()
+                p1().innerHTML = "Started: " + h + ":" + m + ":" + s + ":" + ms;
+            }
+        }
+
+        function onKeyUp() {
+            var d = new Date();
+            h = d.getHours() - h
+            m = d.getMinutes() - m
+            s = d.getSeconds() - s
+            ms = d.getMilliseconds() - ms
+            p2().innerHTML = "Duration: " + h + ":" + m + ":" + s + ":" + ms;
+            block_key_down_until_up = false
+            writeUserData(username(), e1().value, ms)
+            setTimeout(() => e1().value = "", 2000);
+        }
+
+
+        function startSimilarityTesting() {
+            // delayer comparison
+            setTimeout(() => {
+                setInterval(() => {
+                    // every few seconds compare person to the database's people
+                    similiarTo().innerHTML = Math.random().toString();
+                }, 2000)
+            }, 5000);
+        }
+
+        startSimilarityTesting()
+    </script>
+
 </body>
 
 </html>
